@@ -8,9 +8,9 @@ import mongoose from "mongoose";
 
 export async function GET(req: Request) {
     await dbConnect()
-    const session = await getServerSession(authOption)
-    const user: User = session?.user
-    if (!session || session.user) {
+    const session = await getServerSession(authOption);
+    const user: User = session?.user;
+    if (!session || !session.user) {
         return Response.json({
             success: false,
             message: "Not Authenticated"
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     try {
         const user = await UserModel.aggregate([
             {
-                $match: { id: userId }
+                $match: { _id: userId }
             },
             {
                 $unwind: '$messages'
@@ -33,22 +33,26 @@ export async function GET(req: Request) {
                 $sort: { 'messages.createdAt': -1 }
             },
             {
-                $group: { _id: '$_id', messages: { $push: '$messages' } }
+                $group: {
+                    _id: '$_id',
+                    messages: { $push: '$messages' }
+                }
             }
-        ])
+        ]).exec();
+        console.log(user)
         if (!user || user.length === 0) {
             return Response.json({
-                success: false,
-                message: "User not found"
+                success: true,
+                message: "Messages not found"
             },
                 {
-                    status: 401
+                    status: 200
                 }
             )
         }
         return Response.json({
             success: false,
-            message: user[0].messages
+            messages: user[0].messages
         },
             {
                 status: 200

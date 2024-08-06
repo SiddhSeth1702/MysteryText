@@ -1,6 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
-import { z } from 'zod';
+
 
 
 export async function POST(req: Request) {
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
         }
     }
     catch (err) {
-        console.error("Error checkin username", err)
+        console.error("Error checking username", err)
         return Response.json({
             success: false,
             message: "Error verifing user"
